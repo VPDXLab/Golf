@@ -7,6 +7,7 @@ namespace Golf
         [SerializeField] private int m_missedCount;
         [SerializeField] [Min(0)] private float m_spawnRate = 0.5f;
         [SerializeField] private StoneSpawner m_stoneSpawner;
+        [SerializeField] private ScoreManager m_scoreManager;
 
         private float m_time;
         private int m_currentMissedCount;
@@ -33,22 +34,25 @@ namespace Golf
 
         private void OnHitStone(Stone stone)
         {
-            stone.Hit -= OnHitStone;
-            stone.Missed -= OnMissed;
-            
-            Debug.Log("Score");
+            UnsubscribeStone(stone);
+            m_scoreManager.Increase();
         }
         
         private void OnMissed(Stone stone)
         {
-            stone.Hit -= OnHitStone;
-            stone.Missed -= OnMissed;
+            UnsubscribeStone(stone);
 
             m_currentMissedCount--;
             if (m_currentMissedCount <= 0)
             {
                 Debug.Log("GameOver");
             }
+        }
+
+        private void UnsubscribeStone(Stone stone)
+        {
+            stone.Hit -= OnHitStone;
+            stone.Missed -= OnMissed;
         }
     }
 }

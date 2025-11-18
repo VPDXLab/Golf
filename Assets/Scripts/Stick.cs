@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 namespace Golf
@@ -11,6 +10,7 @@ namespace Golf
         [SerializeField] private float m_maxAngleZ = 30;
         [SerializeField] [Min(0)] private float m_speed;
 
+        private bool m_isDown;
         private Vector3 m_direction;
         private Vector3 m_lastPointPosition;
         
@@ -18,7 +18,7 @@ namespace Golf
         {
             var angles = transform.localEulerAngles;
             
-            if (Input.GetKey(KeyCode.RightArrow))
+            if (m_isDown)
             {
                 angles.z = Rotate(angles.z, m_minAngleZ);
             }
@@ -33,17 +33,21 @@ namespace Golf
             m_lastPointPosition = m_point.position;
         }
 
-        private float Rotate(float angleZ, float target)
-        {
-            return Mathf.MoveTowardsAngle(angleZ, target, m_speed * Time.deltaTime);
-        }
-        
         private void OnCollisionEnter(Collision other)
         {
             if (other.gameObject.TryGetComponent<Stone>(out var stone))
             {
-                stone.GetComponent<Rigidbody>().AddForce(m_power * m_direction, ForceMode.Force);
+                stone.AddForce(m_power * m_direction);
             }
+        }
+
+        public void Down() => m_isDown = true;
+        
+        public void Up() => m_isDown = false;
+        
+        private float Rotate(float angleZ, float target)
+        {
+            return Mathf.MoveTowardsAngle(angleZ, target, m_speed * Time.deltaTime);
         }
     }
 }
